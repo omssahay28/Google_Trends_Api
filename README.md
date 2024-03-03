@@ -1,73 +1,43 @@
-### Project Readme
+Overview
+This script analyzes the trending of keywords over a specific timeframe using Google Trends API. It retrieves and processes data for multiple keywords, saving the results in separate Excel files.
 
-## Google Trends Data Visualization Project
+Requirements
+To run this script, you need to have the following installed:
 
-### Overview
+•	Python 3.10
+•	pandas library (pip install pandas)
+•	tqdm library (pip install tqdm)
+•	pytrends library (pip install pytrends)
+•	datetime and os libraries (built-in Python)
 
-This project is designed to retrieve and visualize Google Trends data for specified keywords and locations. It utilizes the `serpapi` library to interact with the Google Trends API, and the results are presented in a time-series plot. Additionally, the data is saved in an Excel file along with the plot for further analysis.
+Usage
 
-### Prerequisites
+•	Save the script as a .py file.
+•	Install the required libraries if not already installed.
+•	Create a text file named INPUT.txt and add your keywords, one per line.
+•	Run the script using the Python interpreter.
 
-1. Python 3.x
-2. Required Python packages (install using `pip install -r requirements.txt`):
-   - pandas
-   - matplotlib
-   - serpapi
-   - python-dotenv
+How it works
+The script performs the following steps:
 
-### Getting Started
+1.	Reads keywords from INPUT.txt and prints them for reference.
+2.	Sets the start and end dates for the analysis (defaulting to the current date and January 1, 2023, respectively).
+3.	Creates an output directory named output if it doesn't exist.
+4.	For each keyword:
+      	Initializes an empty dictionary to store timeframe data.
+      	Sets the initial start date.
+      	Enters a loop that runs for approximately the number of months between the start and end dates.
+           o	Sleeps for 60 seconds to avoid excessive API requests.
+           o	Generates the next month's end date.
+           o	Constructs a timeframe payload for Google Trends API.
+           o	Retrieves data for the keyword and current timeframe using pytrends library.
+           o	Updates the timeframe dictionary with the current payload and data.
 
-1. Clone the repository to your local machine.
-2. Create a virtual environment (optional but recommended).
-3. Install the required packages using `pip install -r requirements.txt`.
-4. Obtain a Google Trends API key and set it in the `.env` file. You can create a `.env` file in the project root with the following content:
+      	Combines the timeframe data with the keyword data.
+      	Converts the combined data into a pandas DataFrame.
+      	Saves the DataFrame as an Excel file in the output directory with the keyword as the file name.
+5.	Prints a success message for each keyword with the corresponding Excel file saved.
 
-   ```
-   serp_api_key=your_google_trends_api_key
-   ```
 
-### Usage
-
-Run the main script by executing the following command in your terminal:
-
-```bash
-python Script.py True
-```
-
-Replace `True` with `False` if you don't want to display the plots interactively. The script expects a CSV file named `Sheet.csv` in the project directory with columns `Keyword` and `Location`.
-
-**Important:** Ensure to populate the `Sheet.csv` file with your desired keyword-location pairs before running the script. Each row should represent a unique pair of a keyword and its corresponding location.
-
-### Project Structure
-
-- **Script.py:** Main script that reads data from the CSV file, retrieves Google Trends data, and calls functions to save the plot and data.
-
-- **helper.py:** Contains the `get_graph` function responsible for interacting with the Google Trends API and generating the plot.
-
-- **helper_helper.py:** Includes the `save_csv_and_plot` function to save the data and plot to an Excel file.
-
-- **outputs/:** Folder where the generated Excel files and plots are saved.
-
-### File Descriptions
-
-- **Script.py:** Main script to run the project.
-
-- **helper.py:** Helper functions related to Google Trends API interaction and plot generation.
-
-- **helper_helper.py:** Additional helper functions for saving data and plots.
-
-### Important Notes
-
-- Ensure that the `serp_api_key` in the `.env` file is valid and has access to the Google Trends API.
-
-- The CSV file should be formatted with columns `Keyword` and `Location` for the script to work correctly.
-
-- The project uses `serpapi` library, so an internet connection is required for API calls.
-
-- Install the required packages using `pip install -r requirements.txt`.
-
-### Acknowledgments
-
-- The project uses the `serpapi` library for interacting with the Google Trends API. Visit [serpapi.com](https://serpapi.com/) for more information.
-
-- Make sure to comply with Google's terms of service when using the Google Trends API.
+Limitations
+This script is designed to work with the US region and Google Trends data. It may require modifications to support different regions or data sources.
