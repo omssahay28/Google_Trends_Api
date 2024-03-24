@@ -18,7 +18,6 @@ async def fetch_data(kw, start_date, end_date, i):
     max_retries = 10000  # Adjust the maximum number of retries as needed
     
     while start_date < end_date:
-        max_retries = 10000
         try:
             next_month = start_date.replace(day=28) + timedelta(days=4)
             end_of_month = next_month - timedelta(days=next_month.day)
@@ -70,13 +69,13 @@ async def fetch_data(kw, start_date, end_date, i):
                 print("An error occurred:", e)
                 break
     
-        
-        timeframe.update(result_dict)
-        df = pd.DataFrame(timeframe)
-        print(df)
-        excel_file_path = os.path.join(output_dir, f"{kw}_{i}.xlsx") 
-        print(excel_file_path)
-        df.to_excel(excel_file_path, index=False)
+        if timeframe:
+            timeframe.update(result_dict)
+            df = pd.DataFrame(timeframe)
+            print(df)
+            excel_file_path = os.path.join(output_dir, f"{kw}_{i}.xlsx") 
+            print(excel_file_path)
+            df.to_excel(excel_file_path, index=False)
     # if os.path.exists(excel_file_path):
     #     # Read existing data from Excel file
     #     existing_df = pd.read_excel(excel_file_path, engine='openpyxl')
@@ -88,7 +87,7 @@ async def fetch_data(kw, start_date, end_date, i):
     # else:
     #     # Save new data to Excel file
     #     df.to_excel(excel_file_path, index=False)
-        print(f"New Excel file saved for keyword: {kw}_{i}.xlsx")
+            print(f"New Excel file saved for keyword: {kw}_{i}.xlsx")
 
 
 async def main():
