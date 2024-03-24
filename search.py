@@ -15,9 +15,10 @@ async def fetch_data(kw, start_date, end_date, i):
     timeframe = {}
     result_dict = None
     retries = 0
-    max_retries = 10  # Adjust the maximum number of retries as needed
+    max_retries = 10000  # Adjust the maximum number of retries as needed
     
     while start_date < end_date:
+        max_retries = 10000
         try:
             next_month = start_date.replace(day=28) + timedelta(days=4)
             end_of_month = next_month - timedelta(days=next_month.day)
@@ -69,6 +70,7 @@ async def fetch_data(kw, start_date, end_date, i):
                 print("An error occurred:", e)
                 break
     
+        
         timeframe.update(result_dict)
         df = pd.DataFrame(timeframe)
         print(df)
