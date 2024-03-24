@@ -102,15 +102,13 @@ async def main():
     # os.makedirs(output_dir)
 
     tasks = []
-    end_date = datetime.now()
     for kw in kw_list:
-        start_date = datetime(2021, 1, 1)
+        start_date = datetime(2004, 1, 1)
         i = 0
         while start_date.year < datetime.now().year:
             end_date_iteration = min(start_date.replace(year=start_date.year + 1) - timedelta(days=1), datetime.now())
             tasks.append(fetch_data(kw, start_date, end_date_iteration, i))
             i+=1
-            print(f"{start_date} -> {end_date_iteration}")
             start_date = end_date_iteration + timedelta(days=1)
 
     await asyncio.gather(*tasks)
