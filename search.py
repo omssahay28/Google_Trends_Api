@@ -1,17 +1,17 @@
+import asyncio
 from pytrends.request import TrendReq
 from datetime import datetime, timedelta
 import pandas as pd
 import os
 import shutil
-from tqdm import tqdm
-import time
-import asyncio
 import random
+from openpyxl import load_workbook
+
 output_dir = "result"
+pytrends = TrendReq(timeout=(10, 20))
 
-pytrends = TrendReq()
-
-async def fetch_data(kw, start_date, end_date):
+async def fetch_data(kw, start_date, end_date, i):
+    print(f"{start_date} -> {end_date}")
     timeframe = {}
     result_dict = None
     retries = 0
@@ -22,7 +22,7 @@ async def fetch_data(kw, start_date, end_date):
             next_month = start_date.replace(day=28) + timedelta(days=4)
             end_of_month = next_month - timedelta(days=next_month.day)
             payload_timeframe = f'{start_date.strftime("%Y-%m-%d")} {end_of_month.strftime("%Y-%m-%d")}'
-            
+
             pytrends.build_payload([kw], cat=0, 
                                     timeframe=payload_timeframe, 
                                     geo='US', gprop='')
@@ -55,6 +55,7 @@ async def fetch_data(kw, start_date, end_date):
             start_date = next_month
         
         except Exception as e:
+            print(e)
             if hasattr(e, 'response') and e.response.status_code == 429:
                 if retries < max_retries:
                     delay = 2 ** retries + random.uniform(0, 1) 
@@ -68,15 +69,25 @@ async def fetch_data(kw, start_date, end_date):
                 print("An error occurred:", e)
                 break
     
-    timeframe.update(result_dict)
-    df = pd.DataFrame(timeframe)
-    excel_file_path = os.path.join(output_dir, f"{kw}.xlsx") 
-    if os.path.exists(excel_file_path):
-        os.remove(excel_file_path)
-    
-    df.to_excel(excel_file_path, index=False)
-    
-    print(f"Excel file saved for keyword: {kw}")
+        timeframe.update(result_dict)
+        df = pd.DataFrame(timeframe)
+        print(df)
+        excel_file_path = os.path.join(output_dir, f"{kw}_{i}.xlsx") 
+        print(excel_file_path)
+        df.to_excel(excel_file_path, index=False)
+    # if os.path.exists(excel_file_path):
+    #     # Read existing data from Excel file
+    #     existing_df = pd.read_excel(excel_file_path, engine='openpyxl')
+    #     # Concatenate existing data with new data
+    #     combined_df = pd.concat([existing_df, df], ignore_index=True)
+    #     # Save combined data to Excel file
+    #     combined_df.to_excel(excel_file_path, index=False)
+    #     print(f"Excel file updated for keyword: {kw}.xlsx")
+    # else:
+    #     # Save new data to Excel file
+    #     df.to_excel(excel_file_path, index=False)
+        print(f"New Excel file saved for keyword: {kw}_{i}.xlsx")
+
 
 async def main():
     with open("INPUT.txt", "r") as file:
@@ -84,17 +95,23 @@ async def main():
     kw_list = [kw.strip() for kw in kw_list]
     print("Keywords:", kw_list)
 
-    end_date = datetime.now()
-    output_dir = "output"
-    if os.path.exists(output_dir):
-        shutil.rmtree(output_dir)
+    # output_dir = "output"
+    # if os.path.exists(output_dir):
+    #     shutil.rmtree(output_dir)
 
-    os.makedirs(output_dir)
+    # os.makedirs(output_dir)
 
     tasks = []
+    end_date = datetime.now()
     for kw in kw_list:
-        start_date = datetime(2004, 1, 1)
-        tasks.append(fetch_data(kw, start_date, end_date))
+        start_date = datetime(2021, 1, 1)
+        i = 0
+        while start_date.year < datetime.now().year:
+            end_date_iteration = min(start_date.replace(year=start_date.year + 1) - timedelta(days=1), datetime.now())
+            tasks.append(fetch_data(kw, start_date, end_date_iteration, i))
+            i+=1
+            print(f"{start_date} -> {end_date_iteration}")
+            start_date = end_date_iteration + timedelta(days=1)
 
     await asyncio.gather(*tasks)
 
