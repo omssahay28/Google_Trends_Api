@@ -7,15 +7,16 @@ import shutil
 import random
 from openpyxl import load_workbook
 
-output_dir = "result"
+main_output_dir = "result"
 pytrends = TrendReq(timeout=(10, 20))
 
-async def fetch_data(kw, start_date, end_date, i):
+async def fetch_data(kw, start_date, end_date, i, output_dir):
+    print(f"{output_dir}")
     print(f"{start_date} -> {end_date}")
     timeframe = {}
     result_dict = None
     retries = 0
-    max_retries = 10000  # Adjust the maximum number of retries as needed
+    max_retries = 10000  
     
     while start_date < end_date:
         try:
@@ -106,9 +107,13 @@ async def main():
     for kw in kw_list:
         start_date = datetime(2004, 1, 1)
         i = 0
-        while start_date.year < datetime.now().year:
+        while start_date.year < datetime.now().year: # put equal here for 2024
             end_date_iteration = min(start_date.replace(year=start_date.year + 1) - timedelta(days=1), datetime.now())
-            tasks.append(fetch_data(kw, start_date, end_date_iteration, i))
+            output_dir = os.path.join(main_output_dir, kw)
+            if not os.path.exists(output_dir):
+                os.makedirs(output_dir)
+            # print(f"{kw}, {start_date}. {end_date_iteration}, {i}, {output_dir}")
+            tasks.append(fetch_data(kw, start_date, end_date_iteration, i, output_dir))
             i+=1
             start_date = end_date_iteration + timedelta(days=1)
 
