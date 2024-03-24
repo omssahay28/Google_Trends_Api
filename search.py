@@ -7,6 +7,7 @@ from tqdm import tqdm
 import time
 import asyncio
 import random
+output_dir = "result"
 
 pytrends = TrendReq()
 
@@ -18,7 +19,6 @@ async def fetch_data(kw, start_date, end_date):
     
     while start_date < end_date:
         try:
-            time.sleep(10)  # Introduce a delay between requests
             next_month = start_date.replace(day=28) + timedelta(days=4)
             end_of_month = next_month - timedelta(days=next_month.day)
             payload_timeframe = f'{start_date.strftime("%Y-%m-%d")} {end_of_month.strftime("%Y-%m-%d")}'
