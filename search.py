@@ -93,7 +93,7 @@ async def main():
 
     tasks = []
     for kw in kw_list:
-        start_date = datetime(2023, 1, 1)
+        start_date = datetime(2004, 1, 1)
         tasks.append(fetch_data(kw, start_date, end_date))
 
     await asyncio.gather(*tasks)
